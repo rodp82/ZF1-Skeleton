@@ -1,6 +1,6 @@
 <?php
 
-class ErrorController extends Zend_Controller_Action
+class Default_ErrorController extends Zend_Controller_Action
 {
 
     public function errorAction()
@@ -30,9 +30,18 @@ class ErrorController extends Zend_Controller_Action
         }
         
         // Log exception, if logger available
-        if ($log = $this->getLog()) {
+        $log = $this->_getLog();
+        if (is_a($log, 'Zend_Log')) {
             $log->log($this->view->message, $priority, $errors->exception);
-            $log->log('Request Parameters', $priority, $errors->request->getParams());
+            $log->log('Message : ' . $errors->exception->getMessage(), $priority);
+            if(APPLICATION_ENV != 'production') {
+                // log extra info\
+                $log->log( 'Error Details : ' . PHP_EOL 
+                         . 'Request Parameters : ' . var_export($errors->request->getParams(), true) . PHP_EOL
+                         . 'Stack Trace : ' . PHP_EOL . $errors->exception->getTraceAsString()
+                         , $priority);
+                
+            }
         }
         
         // conditionally display exceptions
@@ -43,15 +52,18 @@ class ErrorController extends Zend_Controller_Action
         $this->view->request   = $errors->request;
     }
 
-    public function getLog()
+    /**
+     * @return Zend_Log 
+     */
+    private function _getLog()
     {
-        $bootstrap = $this->getInvokeArg('bootstrap');
-        if (!$bootstrap->hasResource('Log')) {
+        if (!Zend_Registry::isRegistered('log')) {
             return false;
         }
-        $log = $bootstrap->getResource('Log');
+        $log = Zend_Registry::get('log');
         return $log;
     }
+    
 
 
 }

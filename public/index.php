@@ -1,8 +1,12 @@
 <?php
 
+// Define path to entire project
+defined('BASE_PATH')
+    || define('BASE_PATH', realpath(dirname(__FILE__) . '/..'));
+
 // Define path to application directory
 defined('APPLICATION_PATH')
-    || define('APPLICATION_PATH', realpath(dirname(__FILE__) . '/../application'));
+    || define('APPLICATION_PATH', BASE_PATH . '/application');
 
 // Define application environment
 defined('APPLICATION_ENV')
@@ -10,7 +14,7 @@ defined('APPLICATION_ENV')
 
 // Ensure library/ is on include_path
 set_include_path(implode(PATH_SEPARATOR, array(
-    realpath(APPLICATION_PATH . '/../library'),
+    realpath(BASE_PATH . '/library'),
     get_include_path(),
 )));
 
